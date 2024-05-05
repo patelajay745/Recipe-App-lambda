@@ -11,17 +11,12 @@ table = dynamodb.Table('Recipe')
 
 def lambda_handler(event, context):
     
-    print(event)
-    
     http_method = event['httpMethod']
     
     token=event['headers']['Authorization'].split(' ')[1]
     decoded_token = jwt.decode(token, os.environ.get('secret_key'), algorithms=['HS256'])
     user_role = decoded_token.get('role')
-    print(user_role)
-    
-    print(token)
-    
+        
     if http_method == 'GET':
         response = table.scan()
         items = response.get('Items', [])
@@ -85,7 +80,7 @@ def lambda_handler(event, context):
                     'statusCode': 400,
                     'body': json.dumps('Missing id parameter in the URL path')
                 }
-            # Delete the associated image from S3
+           
             recipe = table.get_item(Key={'ID': id}).get('Item', {})
             table.delete_item(
                 Key={'ID': id}
